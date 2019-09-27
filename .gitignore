@@ -1,4 +1,10 @@
-*.vsix
+**/*.vsix
+**/*.map
+**/*.taskkey
+**/*.log
 
-node_modules
-**/.vs
+**/.vscode/
+**/.vs/
+**/node_modules/
+
+tasks/CloudflareAddRemoveOrigin/**/*.js
