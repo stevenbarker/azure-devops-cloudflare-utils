@@ -2,17 +2,17 @@
   "$schema": "https://raw.githubusercontent.com/Microsoft/azure-pipelines-task-lib/master/tasks.schema.json",
   "id": "02d61f30-b583-43dc-be46-78222a4bbc65",
   "name": "CloudflareAddRemoveOrigin",
-  "friendlyName": "Cloudflare Add/Remove Origin",
-  "description": "Adds or removes an origin server from your Cloudlare load balanced pool.",
+  "friendlyName": "Cloudflare Enable/Disable Origin",
+  "description": "Enable/Disable an origin server from your Cloudflare load balanced pool.",
   "helpMarkDown": "",
   "category": "Utility",
   "author": "Steven Barker",
   "version": {
-    "Major": 0,
-    "Minor": 1,
+    "Major": 1,
+    "Minor": 0,
     "Patch": 0
   },
-  "instanceNameFormat": "Cloudflare Origin Server",
+  "instanceNameFormat": "Update the Cloudflare origin server",
   "inputs": [
     {
       "name": "cloudflareAuthEmail",
@@ -20,7 +20,7 @@
       "label": "Cloudflare Auth Email",
       "defaultValue": "",
       "required": true,
-      "helpMarkDown": "Cloudflare Auth Email"
+      "helpMarkDown": "The email address associated with the Cloudfront account. This will be used to set the 'X-Auth-Email' header on API requests."
     },
     {
       "name": "cloudflareAuthKey",
@@ -28,7 +28,7 @@
       "label": "Cloudflare Auth Key",
       "defaultValue": "",
       "required": true,
-      "helpMarkDown": "Cloudflare Auth Key"
+      "helpMarkDown": "The auth key associated with the Cloudfront account. This will be used to set the 'X-Auth-Key' header on API requests."
     },
     {
       "name": "cloudflareAccountId",
@@ -36,7 +36,7 @@
       "label": "Cloudflare Account ID",
       "defaultValue": "",
       "required": true,
-      "helpMarkDown": "Cloudflare Account ID"
+      "helpMarkDown": "The ID Cloudfront account."
     },
     {
       "name": "cloudflarePoolName",
@@ -44,7 +44,7 @@
       "label": "Cloudflare Load Balander Pool Name",
       "defaultValue": "",
       "required": true,
-      "helpMarkDown": "Cloudflare Load Balancer Pool Name"
+      "helpMarkDown": "The name (case sensitive) of the load balancer within the Cloudflare account. This pool must contain the origin server you wish to modify."
     },
     {
       "name": "cloudflareOriginName",
@@ -52,14 +52,14 @@
       "label": "Cloudflare Origin Name",
       "defaultValue": "",
       "required": true,
-      "helpMarkDown": "Cloudflare Origin Name"
+      "helpMarkDown": "The name (case sensitive) of the origin server to modify the status of."
     },
     {
       "name": "updatedOriginStatus",
       "type": "radio",
       "label": "Updated Origin Status",
       "required": true,
-      "helpMarkDown": "The updated status of the origin server.",
+      "helpMarkDown": "The updated status of the origin server after the task has successfully executed.",
       "defaultValue": "enabled",
       "options": {
         "enabled": "Enabled",

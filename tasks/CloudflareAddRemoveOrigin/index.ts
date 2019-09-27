@@ -1,13 +1,12 @@
 import * as tl from 'azure-pipelines-task-lib/task';
 import fetch from 'node-fetch';
 
-import { CloudflareBaseUrl } from './constants';
+import { CloudflareUrlBuilder } from './modules/CloudflareUrlBuilder';
 import { OriginStatus } from './enums/OriginStatus';
 import { CloudflareParams } from './models/CloudflareParams';
 
 async function run(): Promise<void> {
   try {
-
     const cloudflareAuthEmail = tl.getInput('cloudflareAuthEmail', true) || '';
     const cloudflareAuthKey = tl.getInput('cloudflareAuthKey', true) || '';
     const cloudflareAccountId = tl.getInput('cloudflareAccountId', true) || '';
@@ -46,17 +45,24 @@ async function runInternal(cloudflareParams: CloudflareParams): Promise<void> {
     throw new Error(`Multiple pools with the name '${cloudflareParams.poolName}' were found.`);
   }
 
+  // The pool containing the origin server to update.
   const filteredPool = filteredPools[0];
 
+  // Find the origin server within the pool and update the pool object locally.
   await findAndUpdateOriginStatus(cloudflareParams, filteredPool);
+
+  // Send the updated pool object to the Cloudflare API.
   await updateAccountPool(cloudflareParams, filteredPool);
 }
 
+/**
+ * Returns an array of all Cloudflare pools within the account.
+ * @param cloudflareParams The Cloudflare task params.
+ */
 async function getAccountPools(cloudflareParams: CloudflareParams): Promise<any[]> {
-  let requestUri = CloudflareBaseUrl.GetAccountPoolsUrl;
-  requestUri = requestUri.replace('[[ACCOUNT_ID]]', cloudflareParams.accountId);
+  const requestUrl = CloudflareUrlBuilder.buildGetAccountPoolsUrl(cloudflareParams.accountId);
 
-  const response = await fetch(requestUri, {
+  const requestOptions = {
     method: 'GET',
     headers: {
       'X-Auth-Email': cloudflareParams.authEmail,
@@ -64,7 +70,9 @@ async function getAccountPools(cloudflareParams: CloudflareParams): Promise<any[
       'Accept': 'application/json',
       'Content-Type': 'application/json'
     }
-  })
+  };
+
+  const response = await fetch(requestUrl, requestOptions)
     .then(res => {
       return res.json();
     })
@@ -75,6 +83,11 @@ async function getAccountPools(cloudflareParams: CloudflareParams): Promise<any[
   return response;
 }
 
+/**
+ * Finds and updates the origin server status locally within the given pool object.
+ * @param cloudclareParams The Cloudflare task params.
+ * @param pool The Cloudflare origin pool.
+ */
 async function findAndUpdateOriginStatus(cloudclareParams: CloudflareParams, pool: any): Promise<void> {
   const poolOrigins: any[] = pool.origins;
   var filteredOrigins = poolOrigins.filter(x => x.name === cloudclareParams.originName);
@@ -88,8 +101,10 @@ async function findAndUpdateOriginStatus(cloudclareParams: CloudflareParams, poo
     throw new Error(`Multiple origins with the name '${cloudclareParams.originName}' were found.`);
   }
 
+  // The origin server object to update the status of.
   const filteredOrigin = filteredOrigins[0];
 
+  // Set the enabled status on the origin object.
   switch (cloudclareParams.originStatus) {
     case OriginStatus.Enable:
       filteredOrigin.enabled = true;
@@ -101,12 +116,15 @@ async function findAndUpdateOriginStatus(cloudclareParams: CloudflareParams, poo
   }
 }
 
+/**
+ * Performs a PUT request to the Cloudfront REST API sending the given 'pool' object in the message body.
+ * @param cloudflareParams The Cloudflare task params.
+ * @param pool The Cloudflare pool object to send in the message body.
+ */
 async function updateAccountPool(cloudflareParams: CloudflareParams, pool: any): Promise<any[]> {
-  let requestUri = CloudflareBaseUrl.UpdateAccountPoolUrl;
-  requestUri = requestUri.replace('[[ACCOUNT_ID]]', cloudflareParams.accountId);
-  requestUri = requestUri.replace('[[POOL_ID]]', pool.id);
+  const requestUrl = CloudflareUrlBuilder.buildUpdateAccountPoolUrl(cloudflareParams.accountId, pool.id);
 
-  const response = await fetch(requestUri, {
+  const requestOptions = {
     method: 'PUT',
     headers: {
       'X-Auth-Email': cloudflareParams.authEmail,
@@ -115,7 +133,9 @@ async function updateAccountPool(cloudflareParams: CloudflareParams, pool: any):
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(pool)
-  })
+  };
+
+  const response = await fetch(requestUrl, requestOptions)
     .then(res => {
       return res.json();
     })
