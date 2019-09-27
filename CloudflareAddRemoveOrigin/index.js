@@ -35,30 +35,22 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var tl = require("azure-pipelines-task-lib/task");
+var tl = __importStar(require("azure-pipelines-task-lib/task"));
 var node_fetch_1 = __importDefault(require("node-fetch"));
-var GET_ACCOUNT_POOLS_URI = 'https://api.cloudflare.com/client/v4/accounts/[[ACCOUNT_ID]]/load_balancers/pools';
-var UPDATE_ACCOUNT_POOL_URI = 'https://api.cloudflare.com/client/v4/accounts/[[ACCOUNT_ID]]/load_balancers/pools/[[POOL_ID]]';
-var OriginStatus;
-(function (OriginStatus) {
-    OriginStatus[OriginStatus["Enable"] = 0] = "Enable";
-    OriginStatus[OriginStatus["Disable"] = 1] = "Disable";
-})(OriginStatus || (OriginStatus = {}));
-var CloudflareParams = /** @class */ (function () {
-    function CloudflareParams(authEmail, authKey, accountId, poolName, originName, originStatus) {
-        this.authEmail = authEmail;
-        this.authKey = authKey;
-        this.accountId = accountId;
-        this.poolName = poolName;
-        this.originName = originName;
-        this.originStatus = originStatus;
-    }
-    return CloudflareParams;
-}());
+var constants_1 = require("./constants");
+var OriginStatus_1 = require("./enums/OriginStatus");
+var CloudflareParams_1 = require("./models/CloudflareParams");
 function run() {
     return __awaiter(this, void 0, void 0, function () {
         var cloudflareAuthEmail, cloudflareAuthKey, cloudflareAccountId, cloudflarePoolName, cloudflareOriginName, updatedOriginStatus, cloudflareParams, err_1;
@@ -72,7 +64,7 @@ function run() {
                     cloudflarePoolName = tl.getInput('cloudflarePoolName', true) || '';
                     cloudflareOriginName = tl.getInput('cloudflareOriginName', true) || '';
                     updatedOriginStatus = tl.getInput('updatedOriginStatus', true) || '';
-                    cloudflareParams = new CloudflareParams(cloudflareAuthEmail, cloudflareAuthKey, cloudflareAccountId, cloudflarePoolName, cloudflareOriginName, updatedOriginStatus === 'enabled' ? OriginStatus.Enable : OriginStatus.Disable);
+                    cloudflareParams = new CloudflareParams_1.CloudflareParams(cloudflareAuthEmail, cloudflareAuthKey, cloudflareAccountId, cloudflarePoolName, cloudflareOriginName, updatedOriginStatus === 'enabled' ? OriginStatus_1.OriginStatus.Enable : OriginStatus_1.OriginStatus.Disable);
                     return [4 /*yield*/, runInternal(cloudflareParams)];
                 case 1:
                     _a.sent();
@@ -110,7 +102,6 @@ function runInternal(cloudflareParams) {
                     return [4 /*yield*/, updateAccountPool(cloudflareParams, filteredPool)];
                 case 3:
                     _a.sent();
-                    console.log(JSON.stringify(filteredPool));
                     return [2 /*return*/];
             }
         });
@@ -122,7 +113,7 @@ function getAccountPools(cloudflareParams) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    requestUri = GET_ACCOUNT_POOLS_URI;
+                    requestUri = constants_1.CloudflareBaseUrl.GetAccountPoolsUrl;
                     requestUri = requestUri.replace('[[ACCOUNT_ID]]', cloudflareParams.accountId);
                     return [4 /*yield*/, node_fetch_1.default(requestUri, {
                             method: 'GET',
@@ -162,10 +153,10 @@ function findAndUpdateOriginStatus(cloudclareParams, pool) {
             }
             filteredOrigin = filteredOrigins[0];
             switch (cloudclareParams.originStatus) {
-                case OriginStatus.Enable:
+                case OriginStatus_1.OriginStatus.Enable:
                     filteredOrigin.enabled = true;
                     return [2 /*return*/];
-                case OriginStatus.Disable:
+                case OriginStatus_1.OriginStatus.Disable:
                     filteredOrigin.enabled = false;
                     return [2 /*return*/];
             }
@@ -179,7 +170,7 @@ function updateAccountPool(cloudflareParams, pool) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    requestUri = UPDATE_ACCOUNT_POOL_URI;
+                    requestUri = constants_1.CloudflareBaseUrl.UpdateAccountPoolUrl;
                     requestUri = requestUri.replace('[[ACCOUNT_ID]]', cloudflareParams.accountId);
                     requestUri = requestUri.replace('[[POOL_ID]]', pool.id);
                     return [4 /*yield*/, node_fetch_1.default(requestUri, {
@@ -200,7 +191,6 @@ function updateAccountPool(cloudflareParams, pool) {
                         })];
                 case 1:
                     response = _a.sent();
-                    console.log();
                     return [2 /*return*/, response];
             }
         });

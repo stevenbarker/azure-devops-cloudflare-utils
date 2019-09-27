@@ -1,23 +1,9 @@
-import tl = require('azure-pipelines-task-lib/task');
+import * as tl from 'azure-pipelines-task-lib/task';
 import fetch from 'node-fetch';
 
-const GET_ACCOUNT_POOLS_URI = 'https://api.cloudflare.com/client/v4/accounts/[[ACCOUNT_ID]]/load_balancers/pools';
-const UPDATE_ACCOUNT_POOL_URI = 'https://api.cloudflare.com/client/v4/accounts/[[ACCOUNT_ID]]/load_balancers/pools/[[POOL_ID]]';
-
-enum OriginStatus {
-  Enable,
-  Disable
-}
-
-class CloudflareParams {
-  constructor(
-    public authEmail: string,
-    public authKey: string,
-    public accountId: string,
-    public poolName: string,
-    public originName: string,
-    public originStatus: OriginStatus) { }
-}
+import { CloudflareBaseUrl } from './constants';
+import { OriginStatus } from './enums/OriginStatus';
+import { CloudflareParams } from './models/CloudflareParams';
 
 async function run(): Promise<void> {
   try {
@@ -44,8 +30,7 @@ async function run(): Promise<void> {
   }
 }
 
-
-async function runInternal(cloudflareParams: CloudflareParams) {
+async function runInternal(cloudflareParams: CloudflareParams): Promise<void> {
   // Request a list of all account pools from the Cloudflare API.
   const allPools = await getAccountPools(cloudflareParams);
 
@@ -65,12 +50,10 @@ async function runInternal(cloudflareParams: CloudflareParams) {
 
   await findAndUpdateOriginStatus(cloudflareParams, filteredPool);
   await updateAccountPool(cloudflareParams, filteredPool);
-
-  console.log(JSON.stringify(filteredPool));
 }
 
 async function getAccountPools(cloudflareParams: CloudflareParams): Promise<any[]> {
-  let requestUri = GET_ACCOUNT_POOLS_URI;
+  let requestUri = CloudflareBaseUrl.GetAccountPoolsUrl;
   requestUri = requestUri.replace('[[ACCOUNT_ID]]', cloudflareParams.accountId);
 
   const response = await fetch(requestUri, {
@@ -92,7 +75,7 @@ async function getAccountPools(cloudflareParams: CloudflareParams): Promise<any[
   return response;
 }
 
-async function findAndUpdateOriginStatus(cloudclareParams: CloudflareParams, pool: any) {
+async function findAndUpdateOriginStatus(cloudclareParams: CloudflareParams, pool: any): Promise<void> {
   const poolOrigins: any[] = pool.origins;
   var filteredOrigins = poolOrigins.filter(x => x.name === cloudclareParams.originName);
 
@@ -119,7 +102,7 @@ async function findAndUpdateOriginStatus(cloudclareParams: CloudflareParams, poo
 }
 
 async function updateAccountPool(cloudflareParams: CloudflareParams, pool: any): Promise<any[]> {
-  let requestUri = UPDATE_ACCOUNT_POOL_URI;
+  let requestUri = CloudflareBaseUrl.UpdateAccountPoolUrl;
   requestUri = requestUri.replace('[[ACCOUNT_ID]]', cloudflareParams.accountId);
   requestUri = requestUri.replace('[[POOL_ID]]', pool.id);
 
@@ -139,8 +122,6 @@ async function updateAccountPool(cloudflareParams: CloudflareParams, pool: any):
     .then(data => {
       return data;
     });
-
-    console.log()
 
   return response;
 }
