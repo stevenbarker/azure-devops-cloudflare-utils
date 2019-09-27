@@ -1,0 +1,22 @@
+{
+  "name": "cloudflareaddremoveorigin",
+  "version": "1.0.3",
+  "description": "Utility tasks for interacting with Cloudflare in Azure Pipelines.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Steven Barker",
+  "license": "MIT",
+  "dependencies": {
+    "azure-pipelines-task-lib": "^2.9.3",
+    "node-fetch": "^2.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^12.7.8",
+    "@types/node-fetch": "^2.5.2",
+    "@types/q": "^1.5.2",
+    "install": "^0.13.0",
+    "npm": "^6.11.3"
+  }
+}

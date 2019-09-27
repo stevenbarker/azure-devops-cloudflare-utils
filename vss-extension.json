@@ -1,0 +1,41 @@
+{
+  "manifestVersion": 1,
+  "id": "azure-devops-cloudflare-utils",
+  "name": "Azure DevOps Cloudflare Utils",
+  "version": "1.0.4",
+  "publisher": "StevenBarker",
+  "targets": [
+    {
+      "id": "Microsoft.VisualStudio.Services"
+    }
+  ],
+  "description": "Utility tasks for interacting with Cloudflare in Azure Pipelines.",
+  "categories": [
+    "Azure Pipelines"
+  ],
+  "icons": {
+    "default": "images/extension-icon.png"
+  },
+  "tags": [
+    "package",
+    "utility",
+    "cloudflare"
+  ],
+  "files": [
+    {
+      "path": "CloudflareAddRemoveOrigin"
+    }
+  ],
+  "contributions": [
+    {
+      "id": "Cloudflare-Add-Remove-Origin",
+      "type": "ms.vss-distributed-task.task",
+      "targets": [
+        "ms.vss-distributed-task.tasks"
+      ],
+      "properties": {
+        "name": "CloudflareAddRemoveOrigin"
+      }
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Microsoft/azure-pipelines-task-lib/master/tasks.schema.json",
+  "id": "02d61f30-b583-43dc-be46-78222a4bbc65",
+  "name": "CloudflareAddRemoveOrigin",
+  "friendlyName": "Cloudflare Add/Remove Origin",
+  "description": "Adds or removes an origin server from your Cloudlare load balanced pool.",
+  "helpMarkDown": "",
+  "category": "Utility",
+  "author": "Steven Barker",
+  "version": {
+    "Major": 0,
+    "Minor": 1,
+    "Patch": 0
+  },
+  "instanceNameFormat": "Cloudflare Origin Server",
+  "inputs": [
+    {
+      "name": "cloudflareAuthEmail",
+      "type": "string",
+      "label": "Cloudflare Auth Email",
+      "defaultValue": "",
+      "required": true,
+      "helpMarkDown": "Cloudflare Auth Email"
+    },
+    {
+      "name": "cloudflareAuthKey",
+      "type": "string",
+      "label": "Cloudflare Auth Key",
+      "defaultValue": "",
+      "required": true,
+      "helpMarkDown": "Cloudflare Auth Key"
+    },
+    {
+      "name": "cloudflareAccountId",
+      "type": "string",
+      "label": "Cloudflare Account ID",
+      "defaultValue": "",
+      "required": true,
+      "helpMarkDown": "Cloudflare Account ID"
+    },
+    {
+      "name": "cloudflarePoolName",
+      "type": "string",
+      "label": "Cloudflare Load Balander Pool Name",
+      "defaultValue": "",
+      "required": true,
+      "helpMarkDown": "Cloudflare Load Balancer Pool Name"
+    },
+    {
+      "name": "cloudflareOriginName",
+      "type": "string",
+      "label": "Cloudflare Origin Name",
+      "defaultValue": "",
+      "required": true,
+      "helpMarkDown": "Cloudflare Origin Name"
+    },
+    {
+      "name": "updatedOriginStatus",
+      "type": "radio",
+      "label": "Updated Origin Status",
+      "required": true,
+      "helpMarkDown": "The updated status of the origin server.",
+      "defaultValue": "enabled",
+      "options": {
+        "enabled": "Enabled",
+        "disabled": "Disabled"
+      }
+    }
+  ],
+  "execution": {
+    "Node10": {
+      "target": "index.js"
+    }
+  }
+}
